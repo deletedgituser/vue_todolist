@@ -245,7 +245,7 @@ export default {
 }
 
 .list-item {
-  background-color: #fff;
+  background-color: #e9ecef; /* Light grey background for the list items */
   border-radius: 8px;
   margin-bottom: 10px;
   color: #333;
