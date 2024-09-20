@@ -3,13 +3,12 @@
     <v-row>
       <v-col cols="12">
         <h1 class="title">Track-Your-Task</h1>
-        <v-form ref="form" v-model="formValid" lazy-validation>
+        <v-form ref="form">
           <v-text-field
             v-model="newTodo"
             label="Enter todo"
             required
             clearable
-            :rules="[v => !!v || 'Todo is required']"
             class="input-field"
           ></v-text-field>
 
@@ -23,7 +22,7 @@
           <v-btn
             color="primary"
             @click.prevent="addTodo"
-            :disabled="!formValid"
+            :disabled="!isFormValid"
             class="add-btn"
           >
             ADD
@@ -62,6 +61,7 @@
 
               <v-list-item-content v-else>
                 <v-text-field v-model="editText" class="edit-field" />
+                <v-text-field v-model="editDue" type="datetime-local" class="edit-field" />
                 <v-btn @click="saveEdit(index)" color="success" class="action-btn">Save</v-btn>
                 <v-btn @click="cancelEdit(index)" color="error" class="action-btn">Cancel</v-btn>
               </v-list-item-content>
@@ -102,6 +102,7 @@ export default {
     return {
       newTodo: "",
       editText: "",
+      editDue: "",
       dueDate: "",
       todos: [],
       formValid: false,
@@ -114,6 +115,10 @@ export default {
     },
     doneTodos() {
       return this.todos.filter(todo => todo.check);
+    },
+    isFormValid() {
+        // Check if both newTodo and dueDate are not empty
+        return this.newTodo.trim() !== "" && this.dueDate.trim() !== "";
     },
   },
   methods: {
@@ -165,8 +170,19 @@ export default {
       this.editText = this.todos[index].text;
     },
     saveEdit(index) {
-      if (this.editText.trim() !== "") {
+      if (this.editText.trim() !== "" && this.editDue.trim() !== "") {
+        const formattedDueDate = this.editDue
+          ? new Date(this.editDue).toLocaleString('en-US', {
+              year: 'numeric',
+              month: 'long',
+              day: 'numeric',
+              hour: 'numeric',
+              minute: 'numeric',
+              hour12: true,
+            })
+          : null;
         this.todos[index].text = this.editText;
+        this.todos[index].due = formattedDueDate;
         this.todos[index].isEditing = false;
         this.editText = "";
         this.saveTodosToLocalStorage(); // Save to local storage
